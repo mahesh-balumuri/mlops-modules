@@ -3,7 +3,6 @@ import sys
 
 import pytest
 
-
 @pytest.fixture(scope="function")
 def stack_defaults():
     os.environ["MLOPS_PROJECT_NAME"] = "test-project"
