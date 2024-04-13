@@ -5,7 +5,7 @@ import pytest
 
 
 @pytest.fixture(scope="function")
-def stack_defaults() -> None:  # type: ignore[no-untyped-def]
+def stack_defaults() -> None:
     os.environ["SEEDFARMER_PROJECT_NAME"] = "test-project"
     os.environ["SEEDFARMER_DEPLOYMENT_NAME"] = "test-deployment"
     os.environ["SEEDFARMER_MODULE_NAME"] = "test-module"
