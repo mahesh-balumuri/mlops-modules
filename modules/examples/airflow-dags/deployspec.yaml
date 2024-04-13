@@ -16,7 +16,7 @@ deploy:
       - >
         echo "SEEDFARMER_PARAMETER_MWAA_EXEC_ROLE_ARN: ${SEEDFARMER_PARAMETER_MWAA_EXEC_ROLE_ARN}"
       - cdk deploy --require-approval never --progress events --app "python app.py" --outputs-file ./cdk-exports.json
-      - export SEEDFARMER_MODULE_METADATA=$(python -c "import json; file=open('cdk-exports.json'); print(json.load(file)['mlops-${MLOPS_DEPLOYMENT_NAME}-${MLOPS_MODULE_NAME}']['metadata'])")
+      - export SEEDFARMER_MODULE_METADATA=$(python -c "import json; file=open('cdk-exports.json'); print(json.load(file)['${SEEDFARMER_PROJECT_NAME}-${SEEDFARMER_DEPLOYMENT_NAME}-${SEEDFARMER_MODULE_NAME}']['metadata'])")
       - export MLOPS_BUCKET=$(echo ${SEEDFARMER_MODULE_METADATA} | jq -r ".MlOpsBucket")
       - export DAG_IAM_ROLE=$(echo ${SEEDFARMER_MODULE_METADATA} | jq -r ".DagRoleArn")
       - export SAGEMAKER_IAM_ROLE=$(echo ${SEEDFARMER_MODULE_METADATA} | jq -r ".SageMakerExecutionRole")
