@@ -3,8 +3,9 @@ import sys
 
 import pytest
 
+
 @pytest.fixture(scope="function")
-def stack_defaults():
+def stack_defaults() -> None:  # type: ignore[no-untyped-def]
     os.environ["SEEDFARMER_PROJECT_NAME"] = "test-project"
     os.environ["SEEDFARMER_DEPLOYMENT_NAME"] = "test-deployment"
     os.environ["SEEDFARMER_MODULE_NAME"] = "test-module"
@@ -20,5 +21,5 @@ def stack_defaults():
         del sys.modules["app"]
 
 
-def test_app(stack_defaults):
+def test_app(stack_defaults):  # type: ignore[no-untyped-def]
     import app  # noqa: F401
