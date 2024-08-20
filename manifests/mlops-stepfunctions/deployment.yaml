@@ -3,7 +3,7 @@ toolchainRegion: us-east-1
 forceDependencyRedeploy: true
 groups:
   - name: mlops
-    path: manifests/mlops-stepfuncions/mlops-stepfunctions.yaml
+    path: manifests/mlops-stepfunctions/mlops-stepfunctions.yaml
 targetAccountMappings:
   - alias: primary
     accountId:
