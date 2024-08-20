@@ -1,0 +1,91 @@
+app_id: my-app
+model_id: my-model
+job_prefix: my-job
+pre-processing:
+  run: true
+  inputs:
+      - name: input-1
+        source:
+          s3_data_type: ManifestFile
+          s3_uri: s3://{MODEL_BUCKET}/input-data/manifest.json
+      - name: input-2
+        source:
+          s3_data_type: S3Prefix
+          s3_uri: s3://{MODEL_BUCKET}/more-input-data/
+    role: my-processing-role
+    app_specification:
+      image_uri: 12345678910.dkr.ecr.us-east-1.amazonaws.com/my-processing-image:latest
+    resources:
+      cluster_config:
+        instance_type: ml.m5.xlarge
+        instance_count: 1
+    output_config:
+      s3_output_path: s3://{MODEL_BUCKET}/processing-output/
+training:
+  run: true
+  training_job_name: my-training-job
+  role: my-training-role
+  input_data_config:
+    - ChannelName: train
+      DataSource:
+        S3DataSource:
+          S3DataDistributionType: FullyReplicated
+          S3Uri: s3://{MODEL_BUCKET}/train-data
+  output_data_config:
+    S3OutputPath: s3://{MODEL_BUCKET}/model-artifacts
+  resource_config:
+    InstanceType: ml.m5.xlarge
+    InstanceCount: 1
+    VolumeSizeInGB: 30
+  algorithm_specification:
+    TrainingImage: 12345678910.dkr.ecr.us-east-1.amazonaws.com/my-training-image
+    TrainingInputMode: File
+evaluation:
+  run: true
+  role: my-evaluation-role
+  input_config:
+    - DataSource:
+        S3DataSource:
+          S3Uri: s3://{MODEL_BUCKET}/eval-data/
+          S3DataType: S3Prefix
+          S3DataDistributionType: FullyReplicated
+      ChannelName: eval
+  output_config:
+    S3OutputPath: s3://{MODEL_BUCKET}/evaluation-output/
+model_registry:
+  run: true
+  model_package_group_name: my-model-package-group
+  eval_threshold: 0.7
+batch:
+  transform_job_name: my-batch-transform-job
+  model_name: my-trained-model
+  batch_strategy: SingleRecord
+  environment:
+    - Name: NUM_PROXIES
+      Value: '2'
+  input_config:
+    - DataSource:
+        S3DataSource:
+          S3Uri: s3://{MODEL_BUCKET}/batch-transform-input/
+  output_config:
+    S3OutputPath: s3://{MODEL_BUCKET}/batch-transform-output/
+post-processing:
+  run: true
+  inputs:
+    - name: input-1
+      source:
+        s3_data_type: ManifestFile
+        s3_uri: s3://{MODEL_BUCKET}/input-data/manifest.json
+    - name: input-2
+      source:
+        s3_data_type: S3Prefix
+        s3_uri: s3://{MODEL_BUCKET}/more-input-data/
+  role: my-processing-role
+  app_specification:
+    image_uri: 12345678910.dkr.ecr.us-east-1.amazonaws.com/my-processing-image:latest
+  resources:
+    cluster_config:
+      instance_type: ml.m5.xlarge
+      instance_count: 1
+  output_config:
+    s3_output_path: s3://{MODEL_BUCKET}/processing-output/
