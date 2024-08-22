@@ -1,8 +1,8 @@
-name: aiops
+name: mlops-stepfunctions
 toolchainRegion: us-east-1
 forceDependencyRedeploy: true
 groups:
-  - name: mlops
+  - name: stepfunctions
     path: manifests/mlops-stepfunctions/mlops-stepfunctions.yaml
 targetAccountMappings:
   - alias: primary

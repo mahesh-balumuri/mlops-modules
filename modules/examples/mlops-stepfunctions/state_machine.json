@@ -1,162 +1,152 @@
 {
-    "StartAt": "ValidateInput",
-    "States": {
-      "ValidateInput": {
-        "Resource": "arn:aws:states:::lambda:invoke",
-        "Parameters": {
-          "FunctionName": "MyLambdaFunction"
-        },
-        "Type": "Task",
-        "Next": "CheckPreProcessingRun"
+  "StartAt": "CheckPreProcessingRun",
+  "States": {
+    "CheckPreProcessingRun": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.preprocessing.run",
+          "BooleanEquals": true,
+          "Next": "PreProcessingJob"
+        }
+      ],
+      "Default": "CheckTrainingRun"
+    },
+    "PreProcessingJob": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sagemaker:createProcessingJob.sync",
+      "Parameters": {
+        "AppSpecification.$": "$.preprocessing.input.AppSpecification",
+        "Environment.$": "$.preprocessing.input.Environment",
+        "NetworkConfig.$": "$.preprocessing.input.NetworkConfig",
+        "ProcessingInputs.$": "$.preprocessing.input.ProcessingInputs",
+        "ProcessingOutputConfig.$": "$.preprocessing.input.ProcessingOutputConfig",
+        "ProcessingResources.$": "$.preprocessing.input.ProcessingResources",
+        "RoleArn.$": "$.preprocessing.input.RoleArn",
+        "StoppingCondition.$": "$.preprocessing.input.StoppingCondition",
+        "Tags.$": "$.preprocessing.input.Tags",
+        "ProcessingJobName.$": "$$.Execution.Name"
       },
-      "CheckPreProcessingRun": {
-        "Type": "Choice",
-        "Choices": [
-          {
-            "Variable": "$.preprocessing.run",
-            "BooleanEquals": true,
-            "Next": "PreProcessingJob"
-          }
-        ],
-        "Default": "CheckTrainingRun"
+      "ResultPath": "$.preprocessing.result",
+      "Next": "CheckTrainingRun"
+    },
+    "CheckTrainingRun": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.training.run",
+          "BooleanEquals": true,
+          "Next": "TrainingJob"
+        }
+      ],
+      "Default": "CheckEvaluationRun"
+    },
+    "TrainingJob": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sagemaker:createTrainingJob.sync",
+      "ResultPath": "$.training.result",
+      "Parameters": {
+        "AlgorithmSpecification.$": "$.training.input.AlgorithmSpecification",
+        "HyperParameters.$": "$.training.input.HyperParameters",
+        "InputDataConfig.$": "$.training.input.InputDataConfig",
+        "OutputDataConfig.$": "$.training.input.OutputDataConfig",
+        "ResourceConfig.$": "$.training.input.ResourceConfig",
+        "RoleArn.$": "$.training.input.RoleArn",
+        "Environment.$": "$.training.input.Environment",
+        "StoppingCondition.$": "$.training.input.StoppingCondition",
+        "Tags.$": "$.training.input.Tags",
+        "RetryStrategy.$": "$.training.input.RetryStrategy",
+        "VpcConfig.$": "$.training.input.VpcConfig",
+        "TrainingJobName.$": "$$.Execution.Name"
       },
-      "PreProcessingJob": {
-        "Type": "Task",
-        "Resource": "arn:aws:states:::sagemaker:createProcessingJob",
-        "Parameters": {
-          "AppSpecification": {
-            "ImageUri": "737474898029.dkr.ecr.sa-east-1.amazonaws.com/sagemaker-scikit-learn:0.20.0-cpu-py3"
-          },
-          "ProcessingResources": {
-            "ClusterConfig": {
-              "InstanceCount": 1,
-              "InstanceType": "ml.t3.medium",
-              "VolumeSizeInGB": 10
-            }
-          },
-          "RoleArn": "arn:aws:iam::123456789012:role/SM-003-CreateProcessingJobAPIExecutionRole",
-          "ProcessingJobName.$": "$.id"
-        },
-        "Next": "CheckTrainingRun"
+      "Next": "CheckEvaluationRun"
+    },
+    "CheckEvaluationRun": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.evaluation.run",
+          "BooleanEquals": true,
+          "Next": "EvaluationJob"
+        }
+      ],
+      "Default": "CreateModelCheck"
+    },
+    "EvaluationJob": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sagemaker:createProcessingJob.sync",
+      "ResultPath": "$.evaluation.result",
+      "Parameters": {
+        "AppSpecification.$": "$.evaluation.input.AppSpecification",
+        "Environment.$": "$.evaluation.input.Environment",
+        "NetworkConfig.$": "$.evaluation.input.NetworkConfig",
+        "ProcessingInputs.$": "$.evaluation.input.ProcessingInputs",
+        "ProcessingOutputConfig.$": "$.evaluation.input.ProcessingOutputConfig",
+        "ProcessingResources.$": "$.evaluation.input.ProcessingResources",
+        "RoleArn.$": "$.evaluation.input.RoleArn",
+        "StoppingCondition.$": "$.evaluation.input.StoppingCondition",
+        "Tags.$": "$.evaluation.input.Tags",
+        "ProcessingJobName.$": "States.Format('evaluation-{}', $$.Execution.Name)"
       },
-      "CheckTrainingRun": {
-        "Type": "Choice",
-        "Choices": [
-          {
-            "Variable": "$.training.run",
-            "BooleanEquals": true,
-            "Next": "TrainingJob"
-          }
-        ],
-        "Default": "CheckSaveModel"
+      "Next": "CreateModelCheck"
+    },
+    "CreateModelCheck": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.CreateModel.run",
+          "BooleanEquals": true,
+          "Next": "CreateModelTask"
+        }
+      ],
+      "Default": "CheckBatchTransformRun"
+    },
+    "CreateModelTask": {
+      "Parameters": {
+        "Containers.$": "$.CreateModel.input.Containers",
+        "EnableNetworkIsolation.$": "$.CreateModel.input.EnableNetworkIsolation",
+        "PrimaryContainer.$": "$.CreateModel.input.PrimaryContainer",
+        "VpcConfig.$": "$.CreateModel.input.VpcConfig",
+        "ExecutionRoleArn.$": "$.CreateModel.input.ExecutionRoleArn",
+        "ModelName.$": "States.Format('model-{}', $$.Execution.Name)"
       },
-      "TrainingJob": {
-        "Resource": "arn:aws:states:::sagemaker:createTrainingJob.sync",
-        "Parameters": {
-          "AlgorithmSpecification": {
-            "TrainingImage": "<SAGEMAKER_TRAINING_IMAGE>",
-            "TrainingInputMode": "File"
-          },
-          "OutputDataConfig": {
-            "S3OutputPath": "s3://<S3_BUCKET>/models"
-          },
-          "StoppingCondition": {
-            "MaxRuntimeInSeconds": 86400
-          },
-          "ResourceConfig": {
-            "InstanceCount": 1,
-            "InstanceType": "ml.m5.xlarge",
-            "VolumeSizeInGB": 30
-          },
-          "RoleArn": "<SAGEMAKER_EXECUTION_ROLE_ARN>",
-          "InputDataConfig": [
-            {
-              "DataSource": {
-                "S3DataSource": {
-                  "S3DataDistributionType": "ShardedByS3Key",
-                  "S3DataType": "S3Prefix",
-                  "S3Uri": "s3://<S3_BUCKET>/csv/train.csv"
-                }
-              },
-              "ChannelName": "train",
-              "ContentType": "text/csv"
-            }
-          ],
-          "HyperParameters": {
-            "objective": "reg:logistic",
-            "eval_metric": "rmse",
-            "num_round": "5"
-          },
-          "TrainingJobName.$": "$$.Execution.Name"
-        },
-        "Type": "Task",
-        "Next": "CheckSaveModel"
+      "Resource": "arn:aws:states:::sagemaker:createModel",
+      "Type": "Task",
+      "ResultPath": "$.CreateModel.result",
+      "Next": "CheckBatchTransformRun"
+    },
+    "CheckBatchTransformRun": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.batchTransform.run",
+          "BooleanEquals": true,
+          "Next": "BatchTransformJob"
+        }
+      ],
+      "Default": "Pass"
+    },
+    "BatchTransformJob": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sagemaker:createTransformJob.sync",
+      "ResultPath": "$.batchTransform.result",
+      "Parameters": {
+        "ModelName.$": "States.Format('model-{}', $$.Execution.Name)",
+        "BatchStrategy.$": "$.batchTransform.input.BatchStrategy",
+        "Environment.$": "$.batchTransform.input.Environment",
+        "MaxConcurrentTransforms.$": "$.batchTransform.input.MaxConcurrentTransforms",
+        "MaxPayloadInMB.$": "$.batchTransform.input.MaxPayloadInMB ",
+        "Tags.$": "$.batchTransform.input.Tags ",
+        "TransformInput.$": "$.batchTransform.input.TransformInput",
+        "TransformOutput.$": "$.batchTransform.input.TransformOutput",
+        "TransformResources.$": "$.batchTransform.input.TransformResources",
+        "TransformJobName.$": "States.Format('batch-{}', $$.Execution.Name)"
       },
-      "CheckSaveModel": {
-        "Type": "Choice",
-        "Choices": [
-          {
-            "Variable": "$.model.save",
-            "BooleanEquals": true,
-            "Next": "CreateModel"
-          }
-        ],
-        "Default": "CheckBatchTranformation"
-      },
-      "CreateModel": {
-        "Parameters": {
-          "PrimaryContainer": {
-            "Image": "<SAGEMAKER_TRAINING_IMAGE>",
-            "Environment": {},
-            "ModelDataUrl.$": "$.ModelArtifacts.S3ModelArtifacts"
-          },
-          "ExecutionRoleArn": "<SAGEMAKER_EXECUTION_ROLE_ARN>",
-          "ModelName.$": "$.TrainingJobName"
-        },
-        "Resource": "arn:aws:states:::sagemaker:createModel",
-        "Type": "Task",
-        "Next": "CheckBatchTranformation"
-      },
-      "CheckBatchTranformation": {
-        "Type": "Choice",
-        "Choices": [
-          {
-            "Variable": "$.batchtransform.run",
-            "BooleanEquals": true,
-            "Next": "BatchTransform"
-          }
-        ],
-        "Default": "Pass"
-      },
-      "BatchTransform": {
-        "Type": "Task",
-        "Resource": "arn:aws:states:::sagemaker:createTransformJob.sync",
-        "Parameters": {
-          "ModelName.$": "$$.Execution.Name",
-          "TransformInput": {
-            "CompressionType": "None",
-            "ContentType": "text/csv",
-            "DataSource": {
-              "S3DataSource": {
-                "S3DataType": "S3Prefix",
-                "S3Uri": "s3://<S3_BUCKET>/csv/test.csv"
-              }
-            }
-          },
-          "TransformOutput": {
-            "S3OutputPath": "s3://<S3_BUCKET>/output"
-          },
-          "TransformResources": {
-            "InstanceCount": 1,
-            "InstanceType": "ml.m5.xlarge"
-          },
-          "TransformJobName.$": "$$.Execution.Name"
-        },
-        "Next": "Pass"
-      },
-      "Pass": {
-        "Type": "Pass",
-        "End": true
-      }
+      "Next": "Pass"
+    },
+    "Pass": {
+      "Type": "Pass",
+      "End": true
     }
   }
+}

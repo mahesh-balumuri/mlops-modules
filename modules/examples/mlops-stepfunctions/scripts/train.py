@@ -1,11 +1,13 @@
 import os
 
 import pandas as pd
-from sklearn.externals import joblib
+import joblib
 from sklearn.linear_model import LogisticRegression
+import shutil
 
 if __name__ == "__main__":
     print("Starting training")
+    model_dir = "/opt/ml/model"
     training_data_directory = "/opt/ml/input/data/training"
     train_features_data = os.path.join(training_data_directory, "train_features.csv")
     train_labels_data = os.path.join(training_data_directory, "train_labels.csv")
@@ -16,6 +18,6 @@ if __name__ == "__main__":
     model = LogisticRegression(class_weight="balanced", solver="lbfgs")
     print("Training LR model")
     model.fit(X_train, y_train)
-    model_output_directory = os.path.join("/opt/ml/model", "model.joblib")
+    model_output_directory = os.path.join(model_dir, "model.joblib")
     print("Saving model to {}".format(model_output_directory))
     joblib.dump(model, model_output_directory)

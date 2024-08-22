@@ -30,6 +30,9 @@ stack = MLOPSSFNResources(
         region=app_settings.cdk_settings.region,
     ),
 )
+from sagemaker import image_uris
+from sagemaker.sklearn import defaults
+image_uri = image_uris.retrieve(defaults.SKLEARN_NAME, region=app_settings.cdk_settings.region,version="1.2-1")
 
 aws_cdk.CfnOutput(
     scope=stack,
@@ -38,6 +41,7 @@ aws_cdk.CfnOutput(
         {
             "MlOpsBucket": stack.mlops_assets_bucket.bucket_name,
             "SageMakerExecutionRole": stack.sagemaker_execution_role.role_arn,
+            "ImageUri": image_uri,
         }
     ),
 )

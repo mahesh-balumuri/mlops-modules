@@ -70,16 +70,19 @@ if __name__ == "__main__":
 
     preprocess = make_column_transformer(
         (
-            ["age", "num persons worked for employer"],
             KBinsDiscretizer(encode="onehot-dense", n_bins=10),
+            ["age", "num persons worked for employer"],
+            
         ),
         (
-            ["capital gains", "capital losses", "dividends from stocks"],
             StandardScaler(),
+            ["capital gains", "capital losses", "dividends from stocks"],
+            
         ),
         (
-            ["education", "major industry code", "class of worker"],
             OneHotEncoder(sparse=False),
+            ["education", "major industry code", "class of worker"],
+            
         ),
     )
     print("Running preprocessing and feature engineering transformations")
