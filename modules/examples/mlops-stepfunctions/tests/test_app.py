@@ -12,7 +12,6 @@ def stack_defaults() -> None:
     os.environ["CDK_DEFAULT_ACCOUNT"] = "111111111111"
     os.environ["CDK_DEFAULT_REGION"] = "us-east-1"
 
-    os.environ["SEEDFARMER_PARAMETER_MWAA_EXEC_ROLE_ARN"] = "vpc-12345"
     os.environ["SEEDFARMER_PARAMETER_BUCKET_POLICY_ARN"] = "12345"
     os.environ["SEEDFARMER_PERMISSION_BOUNDARY_ARN"] = "sagemaker-project"
 

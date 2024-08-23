@@ -28,17 +28,15 @@ def stack_model_package_input() -> cdk.Stack:
     module_name = "test-module"
 
     app_prefix = f"{project_name}-{deployment_name}-{module_name}"
-    mwaa_exec_role = "arn:aws:iam::123456789012:role/mwaarole"
     bucket_policy_arn = "arn:aws:iam::123456789012:policy/bucketPolicy"
     permission_boundary_arn = "arn:aws:iam::123456789012:policy/boundary"
 
-    return stack.DagResources(
+    return stack.MLOPSSFNResources(
         scope=app,
         id=app_prefix,
         project_name=project_name,
         deployment_name=deployment_name,
         module_name=module_name,
-        mwaa_exec_role=mwaa_exec_role,
         bucket_policy_arn=bucket_policy_arn,
         permission_boundary_arn=permission_boundary_arn,
         env=cdk.Environment(
