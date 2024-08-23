@@ -2,8 +2,8 @@ import json
 import os
 import tarfile
 
-import pandas as pd
 import joblib
+import pandas as pd
 from sklearn.metrics import accuracy_score, classification_report, roc_auc_score
 
 if __name__ == "__main__":

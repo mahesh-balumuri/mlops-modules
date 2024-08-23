@@ -1,5 +1,7 @@
 import os
+
 import joblib
+
 
 def model_fn(model_dir):
     print("loading model.joblib from: {}".format(model_dir))

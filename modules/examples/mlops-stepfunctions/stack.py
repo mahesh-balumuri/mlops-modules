@@ -3,15 +3,15 @@
 
 import logging
 from typing import Any, Optional
-import json
+
+import aws_cdk.aws_events as events
+import aws_cdk.aws_events_targets as events_targets
 import aws_cdk.aws_iam as aws_iam
 import aws_cdk.aws_s3 as aws_s3
 import aws_cdk.aws_stepfunctions as sfn
-import aws_cdk.aws_events as events
-import aws_cdk.aws_events_targets as events_targets
-from aws_cdk.aws_lambda import Runtime
-from aws_cdk.aws_lambda_python_alpha import PythonFunction, PythonLayerVersion
 from aws_cdk import Aws, RemovalPolicy, Stack
+from aws_cdk.aws_lambda import Runtime
+from aws_cdk.aws_lambda_python_alpha import PythonFunction
 from cdk_nag import NagPackSuppression, NagSuppressions
 from constructs import Construct
 
@@ -41,7 +41,6 @@ class MLOPSSFNResources(Stack):
             description="This stack deploys Example DAGs resources for MLOps",
             **kwargs,
         )
-        dep_mod = f"{project_name}-{deployment_name}-{module_name}"
         account: str = Aws.ACCOUNT_ID
         region: str = Aws.REGION
 
@@ -72,35 +71,19 @@ class MLOPSSFNResources(Stack):
             ]
         )
 
-        managed_policies = (
-            [
-                aws_iam.ManagedPolicy.from_managed_policy_arn(
-                    self, "bucket-policy", bucket_policy_arn
-                )
-            ]
-            if bucket_policy_arn
-            else []
-        )
-
         # create a role for lambda function
-        # r_name = f"mlops-{self.deployment_name}-{self.module_name}-role"
         lambda_role = aws_iam.Role(
             self,
             "LambdaRole",
             assumed_by=aws_iam.ServicePrincipal("lambda.amazonaws.com"),
             managed_policies=[
-                aws_iam.ManagedPolicy.from_aws_managed_policy_name(
-                    "service-role/AWSLambdaBasicExecutionRole"
-                ),
+                aws_iam.ManagedPolicy.from_aws_managed_policy_name("service-role/AWSLambdaBasicExecutionRole"),
             ],
             # role_name=r_name,
             path="/",
         )
 
-        # Role with Permission Boundary
-        r_name = f"mlops-{self.deployment_name}-{self.module_name}-role"
         # Create the Step Functions Execution Role
-
         sfn_rule_statements = aws_iam.PolicyDocument(
             statements=[
                 aws_iam.PolicyStatement(
@@ -110,9 +93,7 @@ class MLOPSSFNResources(Stack):
                         "events:DescribeRule",
                     ],
                     effect=aws_iam.Effect.ALLOW,
-                    resources=[
-                        f"arn:aws:events:{region}:{account}:rule/StepFunctions*"
-                    ],
+                    resources=[f"arn:aws:events:{region}:{account}:rule/StepFunctions*"],
                 )
             ]
         )
@@ -122,15 +103,9 @@ class MLOPSSFNResources(Stack):
             "StepFunctionsExecutionRole",
             assumed_by=aws_iam.ServicePrincipal("states.amazonaws.com"),
             managed_policies=[
-                aws_iam.ManagedPolicy.from_aws_managed_policy_name(
-                    "service-role/AWSLambdaRole"
-                ),
-                aws_iam.ManagedPolicy.from_aws_managed_policy_name(
-                    "AmazonSageMakerFullAccess"
-                ),
-                aws_iam.ManagedPolicy.from_aws_managed_policy_name(
-                    "AmazonS3ReadOnlyAccess"
-                ),
+                aws_iam.ManagedPolicy.from_aws_managed_policy_name("service-role/AWSLambdaRole"),
+                aws_iam.ManagedPolicy.from_aws_managed_policy_name("AmazonSageMakerFullAccess"),
+                aws_iam.ManagedPolicy.from_aws_managed_policy_name("AmazonS3ReadOnlyAccess"),
             ],
             inline_policies={
                 "SfnSMRulePolicy": sfn_rule_statements,
@@ -145,11 +120,7 @@ class MLOPSSFNResources(Stack):
             self,
             "SageMakerExecutionRole",
             assumed_by=aws_iam.ServicePrincipal("sagemaker.amazonaws.com"),
-            managed_policies=[
-                aws_iam.ManagedPolicy.from_aws_managed_policy_name(
-                    "AmazonSageMakerFullAccess"
-                )
-            ],
+            managed_policies=[aws_iam.ManagedPolicy.from_aws_managed_policy_name("AmazonSageMakerFullAccess")],
             path="/",
             # role_name=f"SageMakerExecutionRole-{self.stack_name}",
         )
@@ -193,14 +164,8 @@ class MLOPSSFNResources(Stack):
             environment={"STATE_MACHINE_ARN": state_machine.state_machine_arn},
         )
 
-        lambda_role.attach_inline_policy(
-            aws_iam.Policy(
-                self, "SFNExecutionPolicy", document=sfn_execution_for_lambda
-            )
-        )
-        lambda_role.attach_inline_policy(
-            aws_iam.Policy(self, "S3AccessRole", document=s3_access_statements)
-        )
+        lambda_role.attach_inline_policy(aws_iam.Policy(self, "SFNExecutionPolicy", document=sfn_execution_for_lambda))
+        lambda_role.attach_inline_policy(aws_iam.Policy(self, "S3AccessRole", document=s3_access_statements))
 
         # Create the EventBridge rule
 

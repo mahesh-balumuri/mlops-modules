@@ -72,17 +72,14 @@ if __name__ == "__main__":
         (
             KBinsDiscretizer(encode="onehot-dense", n_bins=10),
             ["age", "num persons worked for employer"],
-            
         ),
         (
             StandardScaler(),
             ["capital gains", "capital losses", "dividends from stocks"],
-            
         ),
         (
             OneHotEncoder(sparse=False),
             ["education", "major industry code", "class of worker"],
-            
         ),
     )
     print("Running preprocessing and feature engineering transformations")

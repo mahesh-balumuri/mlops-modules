@@ -5,6 +5,8 @@ import aws_cdk
 import cdk_nag
 from aws_cdk import App
 from pydantic import ValidationError
+from sagemaker import image_uris
+from sagemaker.sklearn import defaults
 
 from settings import ApplicationSettings
 from stack import MLOPSSFNResources
@@ -30,9 +32,9 @@ stack = MLOPSSFNResources(
         region=app_settings.cdk_settings.region,
     ),
 )
-from sagemaker import image_uris
-from sagemaker.sklearn import defaults
-image_uri = image_uris.retrieve(defaults.SKLEARN_NAME, region=app_settings.cdk_settings.region,version="1.2-1")
+
+
+image_uri = image_uris.retrieve(defaults.SKLEARN_NAME, region=app_settings.cdk_settings.region, version="1.2-1")
 
 aws_cdk.CfnOutput(
     scope=stack,
