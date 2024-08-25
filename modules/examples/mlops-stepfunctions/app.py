@@ -5,8 +5,8 @@ import aws_cdk
 import cdk_nag
 from aws_cdk import App
 from pydantic import ValidationError
-from sagemaker import image_uris
-from sagemaker.sklearn import defaults
+from sagemaker import image_uris  # type: ignore[import-untyped]
+from sagemaker.sklearn import defaults  # type: ignore[import-untyped]
 
 from settings import ApplicationSettings
 from stack import MLOPSSFNResources
