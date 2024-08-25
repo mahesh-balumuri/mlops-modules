@@ -69,6 +69,10 @@ jmespath==1.0.0
     # via
     #   boto3
     #   botocore
+joblib==1.4.2
+    # via scikit-learn
+joblib-stubs==1.4.2.3.20240619
+    # via -r requirements.in
 jsii==1.102.0
     # via
     #   aws-cdk-asset-awscli-v1
@@ -87,11 +91,18 @@ multiprocess==0.70.16
 numpy==1.26.4
     # via
     #   pandas
+    #   pandas-stubs
     #   sagemaker
+    #   scikit-learn
+    #   scipy
 packaging==24.1
     # via sagemaker
 pandas==2.2.2
-    # via sagemaker
+    # via
+    #   -r requirements.in
+    #   sagemaker
+pandas-stubs==2.2.2.240807
+    # via -r requirements.in
 pathos==0.3.2
     # via sagemaker
 platformdirs==4.2.2
@@ -151,6 +162,10 @@ sagemaker==2.229.0
     # via -r requirements.in
 schema==0.7.7
     # via sagemaker
+scikit-learn==1.5.1
+    # via -r requirements.in
+scipy==1.13.1
+    # via scikit-learn
 six==1.16.0
     # via
     #   google-pasta
@@ -159,6 +174,8 @@ smdebug-rulesconfig==1.0.1
     # via sagemaker
 tblib==3.0.0
     # via sagemaker
+threadpoolctl==3.5.0
+    # via scikit-learn
 tqdm==4.66.5
     # via sagemaker
 typeguard==2.13.3
@@ -170,8 +187,13 @@ typeguard==2.13.3
     #   aws-cdk-lib
     #   cdk-nag
     #   jsii
+types-pytz==2024.1.0.20240417
+    # via pandas-stubs
+types-pyyaml==6.0.12.20240808
+    # via -r requirements.in
 typing-extensions==4.7.1
     # via
+    #   joblib-stubs
     #   jsii
     #   pydantic
     #   pydantic-core
