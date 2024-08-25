@@ -4,7 +4,7 @@ import tarfile
 
 import joblib
 import pandas as pd
-from sklearn.metrics import accuracy_score, classification_report, roc_auc_score
+from sklearn.metrics import accuracy_score, classification_report, roc_auc_score # type: ignore[import-untyped]
 
 if __name__ == "__main__":
     model_path = os.path.join("/opt/ml/processing/model", "model.tar.gz")

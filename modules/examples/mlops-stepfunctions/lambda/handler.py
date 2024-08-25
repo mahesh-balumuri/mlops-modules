@@ -3,15 +3,15 @@ import logging
 import os
 import time
 
-import boto3
-import yaml
+import boto3  # type: ignore[import-untyped]
+import yaml # type: ignore[import-untyped]
 
 # Configure the logger
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
-def lambda_handler(event, context):
+def lambda_handler(event, context):  # type: ignore[no-untyped-def]
     logger.info(f"event: {event}")
     s3 = boto3.client("s3")
 
