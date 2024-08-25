@@ -4,14 +4,14 @@ import warnings
 
 import numpy as np
 import pandas as pd
-from sklearn.compose import make_column_transformer # type: ignore[import-untyped]
-from sklearn.exceptions import DataConversionWarning # type: ignore[import-untyped]
-from sklearn.model_selection import train_test_split # type: ignore[import-untyped]
-from sklearn.preprocessing import ( # type: ignore[import-untyped]
-    KBinsDiscretizer, 
+from sklearn.compose import make_column_transformer  # type: ignore[import-untyped]
+from sklearn.exceptions import DataConversionWarning  # type: ignore[import-untyped]
+from sklearn.model_selection import train_test_split  # type: ignore[import-untyped]
+from sklearn.preprocessing import (  # type: ignore[import-untyped]
+    KBinsDiscretizer,
     OneHotEncoder,
     StandardScaler,
-) 
+)
 
 warnings.filterwarnings(action="ignore", category=DataConversionWarning)
 

@@ -4,7 +4,7 @@ import os
 import time
 
 import boto3  # type: ignore[import-untyped]
-import yaml # type: ignore[import-untyped]
+import yaml  # type: ignore[import-untyped]
 
 # Configure the logger
 logger = logging.getLogger()

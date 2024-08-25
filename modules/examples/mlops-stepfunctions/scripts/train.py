@@ -2,7 +2,7 @@ import os
 
 import joblib
 import pandas as pd
-from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import LogisticRegression  # type: ignore[import-untyped]
 
 if __name__ == "__main__":
     print("Starting training")
